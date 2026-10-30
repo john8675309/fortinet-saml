@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+root=${DPKG_ROOT:-}
+case "$1" in
+    remove|upgrade|deconfigure)
+        if [ -z "$root" ] && [ -d /run/systemd/system ]; then
+            deb-systemd-invoke stop fortigate-manager.socket fortigate-manager.service || true
+        fi
+        ;;
+esac
+if [ "$1" = remove ]; then
+    settings="$root/etc/strongswan.d/charon/fortigate-manager-subnets.conf"
+    if [ -f "$settings" ]; then
+        if cmp -s "$settings" "$root/usr/share/fortigate-manager/fortigate-manager-subnets.conf"; then
+            rm -f -- "$settings"
+        else
+            # Disable the load directive before its critical library is removed.
+            mv "$settings" "$settings.disabled-by-package-removal"
+        fi
+    fi
+fi

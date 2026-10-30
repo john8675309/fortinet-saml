@@ -1,0 +1,37 @@
+[package]
+name = "fortigate-manager"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+license = "GPL-2.0-or-later"
+
+[features]
+default = ["gui"]
+gui = ["dep:gtk", "dep:webbrowser"]
+
+[dependencies]
+anyhow = "1"
+gtk = { version = "0.18", optional = true }
+libc = "0.2"
+rand = "0.8"
+regex = "1"
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls-native-roots"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+signal-hook = "0.3"
+url = "2"
+webbrowser = { version = "0.8", optional = true }
+zeroize = { version = "1", features = ["derive"] }
+
+[[bin]]
+name = "fortigate-managerd"
+path = "src/bin/daemon.rs"
+
+[[bin]]
+name = "fortigate-manager"
+path = "src/bin/gui.rs"
+required-features = ["gui"]
+
+[profile.release]
+lto = "thin"
+strip = true

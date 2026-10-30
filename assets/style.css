@@ -1,0 +1,58 @@
+window, dialog {
+    background-color: #10151b;
+    color: #f3f6fa;
+}
+label { color: #edf2f7; }
+headerbar {
+    background: #151e27;
+    color: #ffffff;
+    border-bottom: 1px solid #334252;
+}
+headerbar .title { color: #ffffff; font-size: 14px; }
+headerbar .subtitle { color: #bdcbd8; }
+.sidebar { background-color: #151e27; border-right: 1px solid #334252; }
+.eyebrow { font-size: 10px; font-weight: bold; letter-spacing: 1px; color: #98c8bb; }
+.page-title { font-size: 28px; font-weight: bold; color: #ffffff; }
+.state { font-size: 14px; font-weight: bold; color: #e2eaf2; }
+.connected { color: #77e5be; }
+.muted, .small { color: #bdcbd8; }
+.small { font-size: 11px; }
+.profile-name { font-weight: bold; color: #f1f6fb; }
+.message { color: #c0ceda; font-size: 12px; }
+.field-label, .details { color: #e8eff6; }
+entry, spinbutton, spinbutton entry, combobox button, combobox entry {
+    background: #1d2834;
+    color: #f5f8fc;
+    border-color: #47596b;
+    caret-color: #ffffff;
+}
+entry { padding: 7px; }
+entry:focus, spinbutton:focus { border-color: #71dcb9; }
+entry:disabled, spinbutton:disabled { color: #b0bfcc; background: #18212b; }
+button {
+    background: #253444;
+    color: #f4f8fc;
+    border: 1px solid #4a5d70;
+    border-radius: 6px;
+    padding: 7px 14px;
+}
+button:hover { background: #34495e; color: #ffffff; }
+button:disabled { background: #1c2631; color: #aebdc9; border-color: #354452; }
+button label { color: inherit; }
+.suggested-action { background: #167961; color: #ffffff; border-color: #42b894; }
+.suggested-action:hover { background: #1d9476; }
+.destructive-action { color: #ffd2d2; }
+.profiles { background: transparent; }
+.profiles row { border-radius: 6px; margin-bottom: 5px; }
+.profiles row:selected { background: #244b40; color: #ffffff; }
+.profiles row:selected label { color: #f1fff8; }
+notebook { background: #151e27; border-color: #384959; }
+notebook > header { background: #17212b; border-color: #384959; }
+notebook tab label { color: #c8d4df; }
+notebook tab:checked { background: #234438; }
+notebook tab:checked label { color: #ffffff; }
+textview, textview text { background: #111a23; color: #f4f7fb; caret-color: #ffffff; }
+expander title, checkbutton { color: #edf3f9; }
+checkbutton check { border-color: #8195a8; }
+checkbutton check:checked { background-color: #248d70; color: #ffffff; }
+selection { background: #275947; color: #ffffff; }

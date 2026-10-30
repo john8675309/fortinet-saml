@@ -1,0 +1,59 @@
+#!/bin/sh
+set -eu
+root=${DPKG_ROOT:-}
+[ "$1" = configure ] || exit 0
+state="$root/var/lib/fortigate-manager"
+data="$root/usr/share/fortigate-manager"
+install -d -m 700 "$state"
+
+# Move only exact, known manual-install units; preserve modified overrides.
+migrated=false
+for unit in fortigate-manager.service fortigate-manager.socket; do
+    old="$root/etc/systemd/system/$unit"
+    if [ -f "$old" ] && [ "$(cat "$old")" = "$(cat "$data/legacy/$unit")" ]; then
+        install -d -m 700 "$state/manual-unit-backups"
+        mv "$old" "$state/manual-unit-backups/$unit.$(date +%s).$$"
+        migrated=true
+    elif [ -e "$old" ]; then
+        echo "Preserving custom systemd override: /etc/systemd/system/$unit"
+    fi
+done
+link="$root/etc/systemd/system/sockets.target.wants/fortigate-manager.socket"
+if [ "$migrated" = true ] && [ -L "$link" ] && [ "$(readlink "$link")" = /etc/systemd/system/fortigate-manager.socket ]; then
+    rm -f -- "$link"
+fi
+
+# This tiny implementation configuration is generated, not a saved VPN profile.
+settings="$root/etc/strongswan.d/charon/fortigate-manager-subnets.conf"
+install -d -m 755 "$root/etc/strongswan.d/charon"
+if [ -e "$settings" ] && ! cmp -s "$settings" "$data/fortigate-manager-subnets.conf"; then
+    install -d -m 700 "$state/manual-unit-backups"
+    install -m 600 "$settings" "$state/manual-unit-backups/subnets.conf.$(date +%s).$$"
+fi
+install -m 644 "$data/fortigate-manager-subnets.conf" "$settings"
+
+if [ -z "$root" ]; then
+    if ! getent group fortigate-manager >/dev/null; then addgroup --system fortigate-manager; fi
+    if [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != root ] && getent passwd "$SUDO_USER" >/dev/null; then
+        /usr/sbin/fortigate-manager-access "$SUDO_USER"
+    else
+        echo 'Authorize a desktop user with: sudo fortigate-manager-access USER'
+    fi
+    deb-systemd-helper unmask fortigate-manager.socket >/dev/null || true
+    deb-systemd-helper enable fortigate-manager.socket >/dev/null
+    if [ -d /run/systemd/system ]; then
+        systemctl daemon-reload
+        current=$(sha256sum /usr/lib/ipsec/plugins/libstrongswan-fortigate-manager-subnets.so | cut -d ' ' -f 1)
+        previous=$(cat "$state/.previous-package-plugin" 2>/dev/null || printf absent)
+        if [ "$current" != "$previous" ]; then
+            echo 'Loading the route plugin: strongSwan restart disconnects its existing VPN tunnels.'
+            deb-systemd-invoke restart strongswan.service
+        else
+            deb-systemd-invoke start strongswan.service
+        fi
+        deb-systemd-invoke start fortigate-manager.socket
+    fi
+    if command -v update-desktop-database >/dev/null; then update-desktop-database -q || true; fi
+    if command -v gtk-update-icon-cache >/dev/null; then gtk-update-icon-cache -q -t /usr/share/icons/hicolor || true; fi
+fi
+rm -f -- "$state/.previous-package-plugin"

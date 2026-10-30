@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+root=${DPKG_ROOT:-}
+case "$1" in
+    install|upgrade)
+        if [ -z "$root" ] && [ -d /run/systemd/system ]; then
+            deb-systemd-invoke stop fortigate-manager.socket fortigate-manager.service || true
+        fi
+        install -d -m 700 "$root/var/lib/fortigate-manager"
+        previous="$root/var/lib/fortigate-manager/.previous-package-plugin"
+        plugin="$root/usr/lib/ipsec/plugins/libstrongswan-fortigate-manager-subnets.so"
+        if [ -f "$plugin" ]; then sha256sum "$plugin" | cut -d ' ' -f 1 > "$previous"
+        else printf '%s\n' absent > "$previous"; fi
+        chmod 600 "$previous"
+        ;;
+esac

@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=FortiGate Manager
+Comment=Manage FortiGate IKEv2 VPNs with browser SAML authentication
+Exec=/usr/local/bin/fortigate-manager
+Icon=fortigate-manager
+Terminal=false
+Categories=Network;GTK;
+StartupNotify=false
+Actions=Show;
+
+[Desktop Action Show]
+Name=Open VPN window
+Exec=/usr/local/bin/fortigate-manager --show

@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+if [ "$(id -u)" != 0 ] || [ "$#" != 1 ]; then
+    echo 'Usage: sudo fortigate-manager-access USER' >&2
+    exit 1
+fi
+getent passwd "$1" >/dev/null
+adduser "$1" fortigate-manager
+echo 'Access granted. Launch FortiGate Manager from the Internet menu.'

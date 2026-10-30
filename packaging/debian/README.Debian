@@ -1,0 +1,48 @@
+FortiGate Manager for Debian 13 amd64
+===================================
+
+Install using apt so dependencies are resolved:
+
+    sudo apt install ./fortigate-manager_0.1.0-1_amd64.deb
+
+Open Internet -> FortiGate Manager, or run /usr/bin/fortigate-manager.
+The client starts in the system tray. Its Open action shows the window;
+/usr/bin/fortigate-manager --show opens it immediately.
+
+The package enables fortigate-manager.socket. The local service starts when
+the client connects to that socket and depends on strongswan.service.
+Installation or a changed route plugin restarts strongSwan and disconnects
+its existing tunnels. Application upgrades stop the manager's own tunnels.
+
+When installed using sudo, the sudo user is added to the fortigate-manager
+access group. For a graphical/root installation or another desktop account:
+
+    sudo fortigate-manager-access USER
+
+The launcher refreshes the authorized group for its process. If group access
+still fails, sign out and back in. Do not run the GUI as root.
+
+Saved profiles and PSKs remain under /var/lib/fortigate-manager, with root-only
+permissions. No saved profiles, PSKs, tokens, or personal VPN details are
+included in this package. Removal and purge retain saved data for recovery.
+
+Known, unmodified service/socket units from the previous manual installer are
+backed up under /var/lib/fortigate-manager/manual-unit-backups and removed
+from /etc/systemd/system so the packaged units are used. Modified overrides
+are preserved. Old /usr/local binaries are not overwritten: use the Internet
+menu or /usr/bin/fortigate-manager after installing this package. Do not use
+the old manual uninstall script to remove the Debian package.
+
+The installed plugin is specific to strongSwan 6.0.1; dependencies enforce
+that version range. The current implementation supports FortiGate IKEv2,
+PSK plus browser SAML, Mode Config, UDP transport and advertised IPv4 routes.
+It does not implement an SSL VPN or an IPv6 VPN.
+
+Useful checks:
+    systemctl status fortigate-manager.socket fortigate-manager.service
+    sudo /usr/libexec/fortigate-managerd --check
+    ip route show table 220
+
+Remove with: sudo apt remove fortigate-manager
+Established connections belong to the service, not to the GUI: quitting the
+tray app leaves them connected until explicitly disconnected.

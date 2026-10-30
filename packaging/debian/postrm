@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+root=${DPKG_ROOT:-}
+if [ -z "$root" ]; then
+    case "$1" in
+        remove)
+            deb-systemd-helper mask fortigate-manager.socket >/dev/null || true
+            ;;
+        purge)
+            deb-systemd-helper purge fortigate-manager.socket fortigate-manager.service >/dev/null || true
+            deb-systemd-helper unmask fortigate-manager.socket >/dev/null || true
+            ;;
+    esac
+    if [ -d /run/systemd/system ]; then systemctl daemon-reload; fi
+    if command -v update-desktop-database >/dev/null; then update-desktop-database -q || true; fi
+fi
+# Saved profiles, PSKs and the access group are retained for recovery.

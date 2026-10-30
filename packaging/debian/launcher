@@ -1,0 +1,17 @@
+#!/bin/sh
+# Refresh the authorized supplementary group without requiring a new login.
+set -eu
+if [ "$(id -u)" = 0 ]; then
+    echo 'Run FortiGate Manager as your desktop user, without sudo.' >&2
+    exit 1
+fi
+case "$#:$*" in
+    0:) command='exec /usr/lib/fortigate-manager/fortigate-manager' ;;
+    1:--show) command='exec /usr/lib/fortigate-manager/fortigate-manager --show' ;;
+    1:--help) echo 'Usage: fortigate-manager [--show]'; exit 0 ;;
+    *) echo 'Usage: fortigate-manager [--show]' >&2; exit 2 ;;
+esac
+if id -Gn | tr ' ' '\n' | grep -Fxq fortigate-manager; then
+    exec /usr/lib/fortigate-manager/fortigate-manager "$@"
+fi
+exec sg fortigate-manager -c "$command"
